@@ -1,57 +1,28 @@
-"""FastAPI application factory for Timer MCP."""
+"""Main entry point for Timer MCP server.
 
-import logging
-from contextlib import asynccontextmanager
+Run with:
+    uvicorn timer_mcp.server:app --host 0.0.0.0 --port 8000
+or:
+    python -m timer_mcp.main
+"""
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+import os
+import sys
 
-from timer_mcp.routes import router as timer_router
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
-)
-logger = logging.getLogger(__name__)
+import uvicorn
+from timer_mcp.config import settings
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Application lifespan handler.
-
-    Sets up and tears down resources when the application starts/stops.
-    """
-    logger.info("Timer MCP starting up")
-    yield
-    logger.info("Timer MCP shutting down")
-
-
-def create_app() -> FastAPI:
-    """Create and configure the FastAPI application.
-
-    Returns:
-        Configured FastAPI application instance.
-    """
-    app = FastAPI(
-        title="Timer MCP",
-        description="Timer MCP - Unauthenticated Twynity MCP for scheduling waits and delayed callbacks",
-        version="1.0.0",
-        lifespan=lifespan,
+def run_server() -> None:
+    """Run the Timer MCP server."""
+    uvicorn.run(
+        "timer_mcp.server:app",
+        host=settings.HOST,
+        port=settings.PORT,
+        workers=settings.WORKERS,
+        log_level=settings.LOG_LEVEL.lower(),
     )
 
-    # CORS middleware
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
 
-    # Register routes
-    app.include_router(timer_router, prefix="/api/v1")
-
-    return app
-
-
-app = create_app()
+if __name__ == "__main__":
+    run_server()
