@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 # Add src directory to Python path so tests can import timer_mcp
-src_dir = Path(__file__).parent / "src"
+src_dir = Path(__file__).parent.parent / "src"
 sys.path.insert(0, str(src_dir))
 
 # Set a default environment for tests
