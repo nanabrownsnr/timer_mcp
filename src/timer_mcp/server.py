@@ -4,6 +4,7 @@ Composes and exposes the FastMCP ASGI application.
 Register new tools/resources in twynity.py.
 """
 
+import logging
 from contextlib import asynccontextmanager
 
 from fastmcp import FastMCP
@@ -14,16 +15,15 @@ from timer_mcp.config import settings
 from timer_mcp.tools import register_tool
 from timer_mcp.twynity import register_routes
 
+logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def app_lifespan(server):
-    """Application lifespan handler.
-
-    Sets up and tears down resources when the application starts/stops.
-    """
-    server.logger.info("Timer MCP starting up")
+    """Application lifespan handler."""
+    logger.info("Timer MCP starting up")
     yield
-    server.logger.info("Timer MCP shutting down")
+    logger.info("Timer MCP shutting down")
 
 
 mcp = FastMCP(
@@ -35,7 +35,7 @@ mcp = FastMCP(
 register_routes(mcp)
 register_tool(mcp)
 
-# CORS middleware — configured per-environment like the Twynity template
+# CORS middleware
 match settings.ENVIRONMENT:
     case "development":
         origins = ["*"]
